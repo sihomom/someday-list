@@ -3,582 +3,399 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#f5f2ec">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Someday List">
+<link rel="manifest" href="manifest.json">
 <title>Someday List — Bucket List Tracker</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #f5f2ec;
-    --surface: #ffffff;
-    --surface2: #f0ece4;
-    --border: #e2ddd4;
-    --gold: #b8892e;
-    --gold-light: #a0721a;
-    --gold-dim: rgba(184,137,46,0.12);
-    --text: #1e1c18;
-    --text-muted: #9a9488;
+    --bg:        #f5f2ec;
+    --surface:   #ffffff;
+    --surface2:  #f0ece4;
+    --border:    #e2ddd4;
+    --gold:      #b8892e;
+    --gold-light:#a0721a;
+    --gold-dim:  rgba(184,137,46,0.12);
+    --text:      #1e1c18;
+    --text-muted:#9a9488;
     --text-soft: #5a5650;
-    --green: #3a9e62;
-    --green-dim: rgba(58,158,98,0.12);
-    --red: #c0484e;
-    --radius: 12px;
+    --green:     #3a9e62;
+    --red:       #c0484e;
+    --red-dim:   rgba(192,72,78,0.10);
+    --star:      #e8a020;
+    --radius:    12px;
     --radius-sm: 8px;
   }
-
-  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 15px;
-    line-height: 1.5;
-    min-height: 100dvh;
-    padding-bottom: 80px;
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+  body{
+    background:var(--bg);color:var(--text);
+    font-family:'DM Sans',sans-serif;font-size:15px;line-height:1.5;
+    min-height:100dvh;padding-bottom:80px;
   }
 
   /* ── HEADER ── */
-  header {
-    padding: 28px 20px 0;
-    position: relative;
+  header{padding:28px 20px 0;display:flex;justify-content:space-between;align-items:flex-start;}
+  .header-left h1{font-family:'Playfair Display',serif;font-size:28px;color:var(--gold-light);letter-spacing:0.02em;}
+  .header-left p{color:var(--text-muted);font-size:13px;margin-top:2px;font-weight:300;}
+  .header-actions{display:flex;gap:8px;margin-top:4px;}
+  .icon-btn-sm{
+    width:36px;height:36px;border-radius:50%;
+    border:1px solid var(--border);background:var(--surface);
+    color:var(--text-muted);display:flex;align-items:center;
+    justify-content:center;cursor:pointer;transition:all 0.2s;
   }
-  header h1 {
-    font-family: 'Playfair Display', serif;
-    font-size: 28px;
-    color: var(--gold-light);
-    letter-spacing: 0.02em;
-  }
-  header p {
-    color: var(--text-muted);
-    font-size: 13px;
-    margin-top: 2px;
-    font-weight: 300;
-  }
+  .icon-btn-sm:active{transform:scale(0.92);}
 
-  /* ── OVERALL PROGRESS ── */
-  .overall-card {
-    margin: 20px 16px 0;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 20px;
+  /* ── SEARCH ── */
+  .search-wrap{padding:14px 16px 0;}
+  .search-inner{
+    display:flex;align-items:center;gap:10px;
+    background:var(--surface);border:1px solid var(--border);
+    border-radius:99px;padding:9px 16px;transition:border-color 0.2s;
   }
-  .overall-top {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-    margin-bottom: 14px;
+  .search-inner:focus-within{border-color:var(--gold);}
+  .search-inner svg{color:var(--text-muted);flex-shrink:0;}
+  .search-input{
+    flex:1;border:none;background:transparent;
+    font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text);outline:none;
   }
-  .overall-label {
-    font-size: 12px;
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
-    color: var(--text-muted);
-    font-weight: 500;
-  }
-  .overall-pct {
-    font-family: 'Playfair Display', serif;
-    font-size: 36px;
-    color: var(--gold-light);
-    line-height: 1;
-  }
-  .overall-counts {
-    font-size: 12px;
-    color: var(--text-muted);
-    text-align: right;
-    margin-top: 2px;
-  }
-  .bar-track {
-    height: 6px;
-    background: var(--border);
-    border-radius: 99px;
-    overflow: hidden;
-  }
-  .bar-fill {
-    height: 100%;
-    background: linear-gradient(90deg, var(--gold), var(--gold-light));
-    border-radius: 99px;
-    transition: width 0.6s cubic-bezier(0.4,0,0.2,1);
-  }
+  .search-input::placeholder{color:var(--text-muted);}
+  .search-clear{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:16px;line-height:1;padding:0;display:none;}
+  .search-clear.visible{display:block;}
 
-  /* ── CATEGORY PILLS (scroll) ── */
-  .cat-scroll-wrap {
-    overflow-x: auto;
-    scrollbar-width: none;
-    padding: 16px 16px 0;
-    display: flex;
-    gap: 8px;
+  /* ── OVERALL ── */
+  .overall-card{
+    margin:14px 16px 0;background:var(--surface);
+    border:1px solid var(--border);border-radius:var(--radius);padding:20px;
   }
-  .cat-scroll-wrap::-webkit-scrollbar { display: none; }
-  .cat-pill {
-    flex-shrink: 0;
-    padding: 7px 16px;
-    border-radius: 99px;
-    border: 1px solid var(--border);
-    background: var(--surface);
-    color: var(--text-soft);
-    font-size: 13px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s;
-    white-space: nowrap;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .cat-pill .pill-count {
-    background: var(--border);
-    color: var(--text-muted);
-    border-radius: 99px;
-    font-size: 11px;
-    padding: 1px 6px;
-    transition: all 0.2s;
-  }
-  .cat-pill.active {
-    border-color: var(--gold);
-    background: var(--gold-dim);
-    color: var(--gold-light);
-  }
-  .cat-pill.active .pill-count {
-    background: rgba(201,168,76,0.25);
-    color: var(--gold-light);
-  }
+  .overall-top{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:14px;}
+  .overall-label{font-size:12px;text-transform:uppercase;letter-spacing:0.12em;color:var(--text-muted);font-weight:500;}
+  .overall-pct{font-family:'Playfair Display',serif;font-size:36px;color:var(--gold-light);line-height:1;}
+  .overall-counts{font-size:12px;color:var(--text-muted);text-align:right;margin-top:2px;}
+  .bar-track{height:6px;background:var(--border);border-radius:99px;overflow:hidden;}
+  .bar-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-light));border-radius:99px;transition:width 0.6s cubic-bezier(0.4,0,0.2,1);}
 
-  /* ── CATEGORY PROGRESS CARDS ── */
-  .cat-progress-section {
-    padding: 16px 16px 0;
+  /* ── CAT PILLS ── */
+  .cat-scroll-wrap{overflow-x:auto;scrollbar-width:none;padding:14px 16px 0;display:flex;gap:8px;}
+  .cat-scroll-wrap::-webkit-scrollbar{display:none;}
+  .cat-pill{
+    flex-shrink:0;padding:7px 14px;border-radius:99px;
+    border:1px solid var(--border);background:var(--surface);
+    color:var(--text-soft);font-size:13px;font-weight:500;
+    cursor:pointer;transition:all 0.2s;white-space:nowrap;
+    display:flex;align-items:center;gap:6px;
   }
-  .cat-progress-section-title {
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
-    color: var(--text-muted);
-    font-weight: 500;
-    margin-bottom: 10px;
-  }
-  .cat-progress-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-  }
-  .cat-prog-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    padding: 12px 14px;
-    cursor: pointer;
-    transition: border-color 0.2s;
-  }
-  .cat-prog-card.active {
-    border-color: var(--gold);
-  }
-  .cat-prog-card:active { opacity: 0.8; }
-  .cat-prog-name {
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--text-soft);
-    margin-bottom: 8px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .cat-prog-name .cat-icon { font-size: 15px; }
-  .cat-prog-pct {
-    font-family: 'Playfair Display', serif;
-    font-size: 20px;
-    color: var(--text);
-    line-height: 1;
-    margin-bottom: 6px;
-  }
-  .cat-prog-bar { height: 4px; background: var(--border); border-radius: 99px; overflow: hidden; }
-  .cat-prog-bar-fill { height: 100%; border-radius: 99px; transition: width 0.5s ease; }
+  .cat-pill .pill-count{background:var(--border);color:var(--text-muted);border-radius:99px;font-size:11px;padding:1px 6px;}
+  .cat-pill.active{border-color:var(--gold);background:var(--gold-dim);color:var(--gold-light);}
+  .cat-pill.active .pill-count{background:rgba(201,168,76,0.25);color:var(--gold-light);}
 
-  /* ── LIST SECTION ── */
-  .list-section {
-    padding: 20px 16px 0;
-  }
-  .list-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 12px;
-  }
-  .list-title {
-    font-family: 'Playfair Display', serif;
-    font-size: 18px;
-    color: var(--text);
-  }
-  .btn-add {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    background: var(--gold);
-    color: #ffffff;
-    border: none;
-    border-radius: 99px;
-    padding: 8px 16px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 13px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background 0.2s, transform 0.1s;
-  }
-  .btn-add:active { transform: scale(0.97); }
+  /* ── CAT PROGRESS ── */
+  .cat-progress-section{padding:14px 16px 0;}
+  .cat-progress-section-title{font-size:11px;text-transform:uppercase;letter-spacing:0.12em;color:var(--text-muted);font-weight:500;margin-bottom:10px;}
+  .cat-progress-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .cat-prog-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;cursor:pointer;transition:border-color 0.2s;}
+  .cat-prog-card.active{border-color:var(--gold);}
+  .cat-prog-card:active{opacity:0.8;}
+  .cat-prog-name{font-size:13px;font-weight:500;color:var(--text-soft);margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+  .cat-prog-pct{font-family:'Playfair Display',serif;font-size:20px;line-height:1;margin-bottom:6px;}
+  .cat-prog-bar{height:4px;background:var(--border);border-radius:99px;overflow:hidden;}
+  .cat-prog-bar-fill{height:100%;border-radius:99px;transition:width 0.5s ease;}
 
-  /* Filter tabs */
-  .filter-tabs {
-    display: flex;
-    gap: 4px;
-    margin-bottom: 14px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 99px;
-    padding: 4px;
+  /* ── LIST ── */
+  .list-section{padding:18px 16px 0;}
+  .list-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+  .list-title{font-family:'Playfair Display',serif;font-size:18px;color:var(--text);}
+  .list-controls{display:flex;gap:8px;align-items:center;}
+  .btn-add{
+    display:flex;align-items:center;gap:6px;
+    background:var(--gold);color:#fff;border:none;border-radius:99px;
+    padding:8px 16px;font-family:'DM Sans',sans-serif;font-size:13px;
+    font-weight:500;cursor:pointer;transition:background 0.2s,transform 0.1s;
   }
-  .filter-tab {
-    flex: 1;
-    text-align: center;
-    padding: 6px 10px;
-    border-radius: 99px;
-    font-size: 12px;
-    font-weight: 500;
-    cursor: pointer;
-    color: var(--text-muted);
-    transition: all 0.2s;
-    border: none;
-    background: transparent;
-    font-family: 'DM Sans', sans-serif;
+  .btn-add:active{transform:scale(0.97);}
+  .sort-btn{
+    display:flex;align-items:center;gap:5px;
+    background:var(--surface);border:1px solid var(--border);border-radius:99px;
+    padding:7px 12px;font-family:'DM Sans',sans-serif;font-size:12px;
+    font-weight:500;color:var(--text-soft);cursor:pointer;white-space:nowrap;
   }
-  .filter-tab.active {
-    background: var(--surface2);
-    color: var(--text);
+  .filter-tabs{
+    display:flex;gap:4px;margin-bottom:14px;
+    background:var(--surface);border:1px solid var(--border);border-radius:99px;padding:4px;
   }
+  .filter-tab{
+    flex:1;text-align:center;padding:6px 8px;border-radius:99px;
+    font-size:12px;font-weight:500;cursor:pointer;color:var(--text-muted);
+    transition:all 0.2s;border:none;background:transparent;font-family:'DM Sans',sans-serif;
+  }
+  .filter-tab.active{background:var(--surface2);color:var(--text);}
 
   /* ── ITEM CARD ── */
-  .item-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 16px;
-    margin-bottom: 10px;
-    position: relative;
-    transition: border-color 0.2s;
+  .item-card{
+    background:var(--surface);border:1px solid var(--border);
+    border-radius:var(--radius);padding:14px 14px 14px 16px;
+    margin-bottom:10px;transition:border-color 0.2s;
   }
-  .item-card.done {
-    border-color: rgba(58,158,98,0.3);
-    background: rgba(58,158,98,0.04);
+  .item-card.done{border-color:rgba(58,158,98,0.3);background:rgba(58,158,98,0.04);}
+  .item-card.starred{border-left:3px solid var(--star);}
+  .item-top{display:flex;align-items:flex-start;gap:11px;}
+  .item-check{
+    width:22px;height:22px;border-radius:50%;border:2px solid var(--border);
+    flex-shrink:0;display:flex;align-items:center;justify-content:center;
+    cursor:pointer;margin-top:1px;transition:all 0.2s;
   }
-  .item-top {
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
+  .item-card.done .item-check{background:var(--green);border-color:var(--green);color:#fff;}
+  .item-check svg{width:12px;height:12px;}
+  .item-body{flex:1;min-width:0;}
+  .item-title{font-size:15px;font-weight:500;color:var(--text);line-height:1.35;}
+  .item-card.done .item-title{color:var(--text-muted);text-decoration:line-through;text-decoration-color:var(--text-muted);}
+  .item-meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;align-items:center;}
+  .item-cat-badge{font-size:11px;padding:2px 8px;border-radius:99px;font-weight:500;}
+  .item-date,.item-added-date{font-size:11px;color:var(--text-muted);}
+  .item-note{
+    margin-top:8px;font-size:13px;color:var(--text-soft);font-style:italic;
+    padding:8px 10px;background:var(--surface2);border-radius:var(--radius-sm);
+    border-left:2px solid rgba(184,137,46,0.3);
   }
-  .item-check {
-    width: 22px;
-    height: 22px;
-    border-radius: 50%;
-    border: 2px solid var(--border);
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    margin-top: 1px;
-    transition: all 0.2s;
+  .item-actions{display:flex;gap:4px;flex-shrink:0;}
+  .icon-btn{
+    width:30px;height:30px;border-radius:50%;border:1px solid transparent;
+    background:transparent;color:var(--text-muted);display:flex;
+    align-items:center;justify-content:center;cursor:pointer;transition:all 0.2s;
   }
-  .item-card.done .item-check {
-    background: var(--green);
-    border-color: var(--green);
-    color: #ffffff;
-  }
-  .item-check svg { width: 12px; height: 12px; }
-  .item-body { flex: 1; min-width: 0; }
-  .item-title {
-    font-size: 15px;
-    font-weight: 500;
-    color: var(--text);
-    line-height: 1.3;
-  }
-  .item-card.done .item-title {
-    color: var(--text-muted);
-    text-decoration: line-through;
-    text-decoration-color: var(--text-muted);
-  }
-  .item-meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin-top: 7px;
-    align-items: center;
-  }
-  .item-cat-badge {
-    font-size: 11px;
-    padding: 2px 8px;
-    border-radius: 99px;
-    font-weight: 500;
-  }
-  .item-date {
-    font-size: 11px;
-    color: var(--text-muted);
-    display: flex;
-    align-items: center;
-    gap: 3px;
-  }
-  .item-note {
-    margin-top: 8px;
-    font-size: 13px;
-    color: var(--text-soft);
-    font-style: italic;
-    padding: 8px 10px;
-    background: var(--surface2);
-    border-radius: var(--radius-sm);
-    border-left: 2px solid rgba(184,137,46,0.3);
-  }
-  .item-actions {
-    display: flex;
-    gap: 6px;
-    margin-top: 0;
-    flex-shrink: 0;
-  }
-  .icon-btn {
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    border: 1px solid var(--border);
-    background: transparent;
-    color: var(--text-muted);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-  .icon-btn:active { transform: scale(0.9); }
-  .icon-btn.delete:active { color: var(--red); border-color: var(--red); }
+  .icon-btn:active{transform:scale(0.88);}
+  .icon-btn.star-btn{color:#d0c09a;}
+  .icon-btn.star-btn.on{color:var(--star);}
+  .icon-btn.delete-btn:active{color:var(--red);border-color:var(--red);}
 
-  /* ── EMPTY STATE ── */
-  .empty-state {
-    text-align: center;
-    padding: 50px 20px;
-    color: var(--text-muted);
-  }
-  .empty-state .empty-icon { font-size: 40px; margin-bottom: 12px; }
-  .empty-state p { font-size: 14px; }
+  /* ── EMPTY ── */
+  .empty-state{text-align:center;padding:50px 20px;color:var(--text-muted);}
+  .empty-state .empty-icon{font-size:40px;margin-bottom:12px;}
+  .empty-state p{font-size:14px;}
 
-  /* ── MODAL ── */
-  .modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.7);
-    z-index: 100;
-    display: flex;
-    align-items: flex-end;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.25s;
+  /* ── MODALS (bottom-sheet) ── */
+  .modal-overlay{
+    position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:100;
+    display:flex;align-items:flex-end;
+    opacity:0;pointer-events:none;transition:opacity 0.25s;
   }
-  .modal-overlay.open {
-    opacity: 1;
-    pointer-events: all;
+  .modal-overlay.open{opacity:1;pointer-events:all;}
+  .modal{
+    background:var(--surface);border:1px solid var(--border);
+    border-radius:var(--radius) var(--radius) 0 0;padding:24px 20px 40px;
+    width:100%;max-height:92dvh;overflow-y:auto;
+    transform:translateY(100%);transition:transform 0.3s cubic-bezier(0.4,0,0.2,1);
   }
-  .modal {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius) var(--radius) 0 0;
-    padding: 24px 20px 40px;
-    width: 100%;
-    max-height: 90dvh;
-    overflow-y: auto;
-    transform: translateY(100%);
-    transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+  .modal-overlay.open .modal{transform:translateY(0);}
+  .modal-handle{width:36px;height:4px;background:var(--border);border-radius:99px;margin:0 auto 20px;}
+  .modal-title{font-family:'Playfair Display',serif;font-size:20px;margin-bottom:20px;color:var(--gold-light);}
+  .form-group{margin-bottom:16px;}
+  .form-label{display:block;font-size:12px;font-weight:500;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin-bottom:6px;}
+  .form-input,.form-select,.form-textarea{
+    width:100%;background:var(--surface2);border:1px solid var(--border);
+    border-radius:var(--radius-sm);padding:11px 14px;color:var(--text);
+    font-family:'DM Sans',sans-serif;font-size:15px;outline:none;
+    transition:border-color 0.2s;-webkit-appearance:none;
   }
-  .modal-overlay.open .modal {
-    transform: translateY(0);
+  .form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--gold);}
+  .form-select option{background:#fff;color:var(--text);}
+  .form-textarea{resize:none;height:80px;line-height:1.5;}
+  .form-row{display:flex;gap:8px;}
+  .form-row .form-input,.form-row .form-select{flex:1;}
+  .btn-icon-only{
+    width:44px;height:44px;border-radius:var(--radius-sm);
+    border:1px solid var(--border);background:var(--surface2);
+    color:var(--text-muted);display:flex;align-items:center;
+    justify-content:center;cursor:pointer;flex-shrink:0;font-size:18px;
   }
-  .modal-handle {
-    width: 36px;
-    height: 4px;
-    background: var(--border);
-    border-radius: 99px;
-    margin: 0 auto 20px;
+  .modal-actions{display:flex;gap:10px;margin-top:22px;}
+  .btn-primary{
+    flex:1;background:var(--gold);color:#fff;border:none;border-radius:99px;
+    padding:13px;font-family:'DM Sans',sans-serif;font-size:15px;
+    font-weight:500;cursor:pointer;transition:background 0.2s,transform 0.1s;
   }
-  .modal-title {
-    font-family: 'Playfair Display', serif;
-    font-size: 20px;
-    margin-bottom: 20px;
-    color: var(--gold-light);
+  .btn-primary:active{transform:scale(0.98);}
+  .btn-secondary{
+    flex:1;background:transparent;color:var(--text-soft);border:1px solid var(--border);
+    border-radius:99px;padding:13px;font-family:'DM Sans',sans-serif;font-size:15px;cursor:pointer;
   }
-  .form-group {
-    margin-bottom: 16px;
-  }
-  .form-label {
-    display: block;
-    font-size: 12px;
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--text-muted);
-    margin-bottom: 6px;
-  }
-  .form-input, .form-select, .form-textarea {
-    width: 100%;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    padding: 11px 14px;
-    color: var(--text);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 15px;
-    outline: none;
-    transition: border-color 0.2s;
-    -webkit-appearance: none;
-  }
-  .form-input:focus, .form-select:focus, .form-textarea:focus {
-    border-color: var(--gold);
-  }
-  .form-select option { background: #ffffff; color: #1e1c18; }
-  .form-textarea { resize: none; height: 80px; line-height: 1.5; }
-  .modal-actions {
-    display: flex;
-    gap: 10px;
-    margin-top: 22px;
-  }
-  .btn-primary {
-    flex: 1;
-    background: var(--gold);
-    color: #ffffff;
-    border: none;
-    border-radius: 99px;
-    padding: 13px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 15px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background 0.2s, transform 0.1s;
-  }
-  .btn-primary:active { transform: scale(0.98); }
-  .btn-secondary {
-    flex: 1;
-    background: transparent;
-    color: var(--text-soft);
-    border: 1px solid var(--border);
-    border-radius: 99px;
-    padding: 13px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 15px;
-    cursor: pointer;
+  .btn-danger{
+    flex:1;background:var(--red-dim);color:var(--red);
+    border:1px solid rgba(192,72,78,0.25);border-radius:99px;padding:13px;
+    font-family:'DM Sans',sans-serif;font-size:15px;font-weight:500;cursor:pointer;
   }
 
-  /* Done modal */
-  .done-modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.7);
-    z-index: 200;
-    display: flex;
-    align-items: flex-end;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.25s;
+  /* ── DATA SHEET ── */
+  .data-sheet{
+    background:var(--surface);border:1px solid var(--border);
+    border-radius:var(--radius) var(--radius) 0 0;padding:24px 20px 44px;
+    width:100%;transform:translateY(100%);transition:transform 0.3s cubic-bezier(0.4,0,0.2,1);
   }
-  .done-modal-overlay.open {
-    opacity: 1;
-    pointer-events: all;
+  .modal-overlay.open .data-sheet{transform:translateY(0);}
+  .data-btn{
+    display:flex;align-items:center;gap:14px;width:100%;
+    padding:14px 16px;background:var(--surface2);border:1px solid var(--border);
+    border-radius:var(--radius-sm);margin-bottom:10px;cursor:pointer;
+    text-align:left;font-family:'DM Sans',sans-serif;transition:border-color 0.2s;
   }
-  .done-modal {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius) var(--radius) 0 0;
-    padding: 24px 20px 40px;
-    width: 100%;
-    transform: translateY(100%);
-    transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
-  }
-  .done-modal-overlay.open .done-modal {
-    transform: translateY(0);
-  }
+  .data-btn:active{opacity:0.7;}
+  .data-btn-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+  .data-btn-text strong{display:block;font-size:14px;font-weight:500;color:var(--text);margin-bottom:2px;}
+  .data-btn-text span{font-size:12px;color:var(--text-muted);}
 
-  /* Toast */
-  .toast {
-    position: fixed;
-    bottom: 90px;
-    left: 50%;
-    transform: translateX(-50%) translateY(20px);
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 99px;
-    padding: 10px 20px;
-    font-size: 13px;
-    color: var(--text);
-    opacity: 0;
-    transition: all 0.3s;
-    z-index: 300;
-    white-space: nowrap;
-    pointer-events: none;
-  }
-  .toast.show {
-    opacity: 1;
-    transform: translateX(-50%) translateY(0);
-  }
+  /* ── CAT CHIPS ── */
+  .cat-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;min-height:30px;}
+  .cat-chip{display:flex;align-items:center;gap:4px;padding:4px 10px;border-radius:99px;background:var(--surface2);border:1px solid var(--border);font-size:12px;color:var(--text-soft);}
+  .cat-chip-del{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:14px;line-height:1;padding:0 0 0 2px;}
 
-  /* Confetti layer */
-  #confetti-canvas {
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    z-index: 500;
+  /* ── SORT DROPDOWN ── */
+  .sort-dropdown{
+    position:fixed;background:var(--surface);border:1px solid var(--border);
+    border-radius:var(--radius);box-shadow:0 8px 32px rgba(0,0,0,0.12);
+    z-index:200;min-width:185px;overflow:hidden;
+    opacity:0;pointer-events:none;transform:translateY(-6px);transition:opacity 0.15s,transform 0.15s;
   }
+  .sort-dropdown.open{opacity:1;pointer-events:all;transform:translateY(0);}
+  .sort-option{
+    padding:12px 16px;font-size:14px;color:var(--text-soft);
+    cursor:pointer;display:flex;align-items:center;gap:10px;transition:background 0.15s;
+  }
+  .sort-option:hover{background:var(--surface2);}
+  .sort-option.active{color:var(--gold-light);font-weight:500;}
+  .sort-check{margin-left:auto;color:var(--gold);}
+
+  /* ── CONFIRM (center) ── */
+  .confirm-overlay{
+    position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:300;
+    display:flex;align-items:center;justify-content:center;padding:24px;
+    opacity:0;pointer-events:none;transition:opacity 0.2s;
+  }
+  .confirm-overlay.open{opacity:1;pointer-events:all;}
+  .confirm-box{
+    background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+    padding:24px 20px 20px;width:100%;max-width:320px;
+    transform:scale(0.95);transition:transform 0.2s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  .confirm-overlay.open .confirm-box{transform:scale(1);}
+  .confirm-icon{font-size:28px;margin-bottom:10px;}
+  .confirm-title{font-family:'Playfair Display',serif;font-size:17px;color:var(--text);margin-bottom:8px;}
+  .confirm-desc{font-size:13px;color:var(--text-muted);line-height:1.5;margin-bottom:20px;}
+  .confirm-actions{display:flex;gap:10px;}
+
+  /* ── TOAST ── */
+  .toast{
+    position:fixed;bottom:90px;left:50%;
+    transform:translateX(-50%) translateY(20px);
+    background:var(--text);border-radius:99px;padding:10px 20px;
+    font-size:13px;color:#fff;opacity:0;transition:all 0.3s;
+    z-index:400;white-space:nowrap;pointer-events:none;
+    max-width:calc(100vw - 40px);text-align:center;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+  #confetti-canvas{position:fixed;inset:0;pointer-events:none;z-index:500;}
+  #import-file{display:none;}
 </style>
 </head>
 <body>
 
 <canvas id="confetti-canvas"></canvas>
+<input type="file" id="import-file" accept=".json">
 
+<!-- HEADER -->
 <header>
-  <h1>Someday List</h1>
-  <p>Everything you'll do someday</p>
+  <div class="header-left">
+    <h1>Someday List</h1>
+    <p>Everything you'll do someday</p>
+  </div>
+  <div class="header-actions">
+    <button class="icon-btn-sm" onclick="openDataSheet()" title="데이터 관리">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+        <circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.3"/>
+      </svg>
+    </button>
+  </div>
 </header>
 
-<!-- Overall progress -->
+<!-- SEARCH -->
+<div class="search-wrap">
+  <div class="search-inner">
+    <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+      <circle cx="6.5" cy="6.5" r="5" stroke="currentColor" stroke-width="1.5"/>
+      <path d="M10.5 10.5L13 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>
+    <input class="search-input" id="search-input" type="text" placeholder="목표 검색…" oninput="onSearchInput(this)">
+    <button class="search-clear" id="search-clear" onclick="clearSearch()">✕</button>
+  </div>
+</div>
+
+<!-- OVERALL PROGRESS -->
 <div class="overall-card">
   <div class="overall-top">
     <span class="overall-label">전체 달성률</span>
     <div>
       <div class="overall-pct" id="overall-pct">0%</div>
-      <div class="overall-counts" id="overall-counts">0 / 0 completed</div>
+      <div class="overall-counts" id="overall-counts">0 / 0 완료</div>
     </div>
   </div>
   <div class="bar-track"><div class="bar-fill" id="overall-bar" style="width:0%"></div></div>
 </div>
 
-<!-- Category progress grid -->
+<!-- CAT PROGRESS -->
 <div class="cat-progress-section" id="cat-progress-section">
   <div class="cat-progress-section-title">카테고리별 진행률</div>
   <div class="cat-progress-grid" id="cat-progress-grid"></div>
 </div>
 
-<!-- Category pills filter -->
+<!-- CAT PILLS -->
 <div class="cat-scroll-wrap" id="cat-scroll-wrap"></div>
 
-<!-- Item list -->
+<!-- LIST -->
 <div class="list-section">
   <div class="list-header">
     <div class="list-title" id="list-title">전체 목표</div>
-    <button class="btn-add" onclick="openAddModal()">
-      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-      추가
-    </button>
+    <div class="list-controls">
+      <button class="sort-btn" id="sort-btn" onclick="toggleSortMenu(event)">
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+          <path d="M1 3h11M3 6.5h7M5 10h3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+        </svg>
+        <span id="sort-label">최신순</span>
+      </button>
+      <button class="btn-add" onclick="openAddModal()">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        추가
+      </button>
+    </div>
   </div>
   <div class="filter-tabs">
-    <button class="filter-tab active" data-filter="all" onclick="setFilter('all',this)">전체</button>
-    <button class="filter-tab" data-filter="todo" onclick="setFilter('todo',this)">예정</button>
-    <button class="filter-tab" data-filter="done" onclick="setFilter('done',this)">완료</button>
+    <button class="filter-tab active" data-filter="all"     onclick="setFilter('all',this)">전체</button>
+    <button class="filter-tab"        data-filter="starred" onclick="setFilter('starred',this)">⭐ 중요</button>
+    <button class="filter-tab"        data-filter="todo"    onclick="setFilter('todo',this)">예정</button>
+    <button class="filter-tab"        data-filter="done"    onclick="setFilter('done',this)">완료</button>
   </div>
   <div id="item-list"></div>
 </div>
 
-<!-- Add/Edit Modal -->
-<div class="modal-overlay" id="item-modal" onclick="handleModalOverlayClick(event)">
-  <div class="modal" id="item-modal-box">
+<!-- SORT DROPDOWN -->
+<div class="sort-dropdown" id="sort-dropdown">
+  <div class="sort-option active" data-sort="newest"    onclick="setSort('newest')">   🕐 최신순      <span class="sort-check" id="sc-newest">✓</span></div>
+  <div class="sort-option"        data-sort="oldest"    onclick="setSort('oldest')">   🕐 오래된순    <span class="sort-check" id="sc-oldest"    style="display:none">✓</span></div>
+  <div class="sort-option"        data-sort="starred"   onclick="setSort('starred')">  ⭐ 중요 먼저   <span class="sort-check" id="sc-starred"   style="display:none">✓</span></div>
+  <div class="sort-option"        data-sort="alpha"     onclick="setSort('alpha')">    🔤 이름순      <span class="sort-check" id="sc-alpha"     style="display:none">✓</span></div>
+  <div class="sort-option"        data-sort="cat"       onclick="setSort('cat')">      📂 카테고리순  <span class="sort-check" id="sc-cat"       style="display:none">✓</span></div>
+  <div class="sort-option"        data-sort="done-last" onclick="setSort('done-last')">✅ 미완료 먼저 <span class="sort-check" id="sc-done-last" style="display:none">✓</span></div>
+</div>
+
+<!-- ADD / EDIT MODAL -->
+<div class="modal-overlay" id="item-modal" onclick="handleOverlayClick(event,'item-modal')">
+  <div class="modal">
     <div class="modal-handle"></div>
     <div class="modal-title" id="modal-title">새 목표</div>
     <div class="form-group">
@@ -587,29 +404,21 @@
     </div>
     <div class="form-group">
       <label class="form-label">카테고리</label>
-      <select class="form-select" id="f-cat">
-        <option value="Travel">✈️ Travel</option>
-        <option value="Adventure">🧗 Adventure</option>
-        <option value="Culture">🎭 Culture</option>
-        <option value="Food">🍜 Food</option>
-        <option value="Learning">📚 Learning</option>
-        <option value="Career">💼 Career</option>
-        <option value="Health">🏃 Health</option>
-        <option value="Relationship">❤️ Relationship</option>
-        <option value="Creative">🎨 Creative</option>
-        <option value="Other">⭐ Other</option>
-      </select>
+      <div class="form-row">
+        <select class="form-select" id="f-cat"></select>
+        <button class="btn-icon-only" onclick="openCatManager()" title="카테고리 관리">⚙️</button>
+      </div>
     </div>
     <div class="modal-actions">
       <button class="btn-secondary" onclick="closeModal('item-modal')">취소</button>
-      <button class="btn-primary" onclick="saveItem()">저장</button>
+      <button class="btn-primary"   onclick="saveItem()">저장</button>
     </div>
   </div>
 </div>
 
-<!-- Complete (mark done) Modal -->
-<div class="done-modal-overlay" id="done-modal" onclick="handleDoneOverlayClick(event)">
-  <div class="done-modal" id="done-modal-box">
+<!-- DONE MODAL -->
+<div class="modal-overlay" id="done-modal" onclick="handleOverlayClick(event,'done-modal')">
+  <div class="modal">
     <div class="modal-handle"></div>
     <div class="modal-title">🎉 완료 기록하기!</div>
     <div class="form-group">
@@ -622,7 +431,71 @@
     </div>
     <div class="modal-actions">
       <button class="btn-secondary" onclick="closeModal('done-modal')">취소</button>
-      <button class="btn-primary" onclick="confirmDone()">완료! 🎊</button>
+      <button class="btn-primary"   onclick="confirmDone()">완료! 🎊</button>
+    </div>
+  </div>
+</div>
+
+<!-- CATEGORY MANAGER (opens on top of item-modal) -->
+<div class="modal-overlay" id="cat-modal" onclick="handleOverlayClick(event,'cat-modal')" style="z-index:150;">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">카테고리 관리</div>
+    <div class="form-group">
+      <label class="form-label">현재 카테고리</label>
+      <div class="cat-chips" id="cat-chips"></div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">새 카테고리 추가</label>
+      <div class="form-row">
+        <input class="form-input" id="new-cat-emoji" type="text" placeholder="🌙" style="max-width:60px;text-align:center" onkeydown="handleCatKey(event)">
+        <input class="form-input" id="new-cat-name"  type="text" placeholder="카테고리 이름"                                  onkeydown="handleCatKey(event)">
+        <button class="btn-icon-only" onclick="addCustomCat()" style="font-size:22px;font-weight:300">+</button>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-primary" onclick="closeCatManager()">완료</button>
+    </div>
+  </div>
+</div>
+
+<!-- DATA SHEET -->
+<div class="modal-overlay" id="data-modal" onclick="handleOverlayClick(event,'data-modal')">
+  <div class="data-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title" style="margin-bottom:16px">데이터 관리</div>
+    <button class="data-btn" onclick="exportData()">
+      <div class="data-btn-icon" style="background:#e8f4f0">📤</div>
+      <div class="data-btn-text">
+        <strong>JSON으로 내보내기</strong>
+        <span>전체 목표 데이터를 백업해요</span>
+      </div>
+    </button>
+    <button class="data-btn" onclick="triggerImport()">
+      <div class="data-btn-icon" style="background:#f0eef8">📥</div>
+      <div class="data-btn-text">
+        <strong>JSON 불러오기</strong>
+        <span>백업 파일로 데이터를 복원해요</span>
+      </div>
+    </button>
+    <div style="margin-top:12px;padding:12px 14px;background:var(--surface2);border-radius:var(--radius-sm);font-size:12px;color:var(--text-muted);line-height:1.6">
+      ⚠️ 불러오기 시 현재 데이터에 병합돼요. 중복 항목은 자동으로 건너뜁니다.
+    </div>
+    <div style="margin-top:10px">
+      <button class="btn-secondary" style="width:100%" onclick="closeModal('data-modal')">닫기</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM MODAL -->
+<div class="confirm-overlay" id="confirm-overlay">
+  <div class="confirm-box">
+    <div class="confirm-icon"  id="confirm-icon">⚠️</div>
+    <div class="confirm-title" id="confirm-title"></div>
+    <div class="confirm-desc"  id="confirm-desc"></div>
+    <div class="confirm-actions">
+      <button class="btn-secondary" onclick="confirmResolve(false)">취소</button>
+      <button class="btn-danger" id="confirm-ok-btn" onclick="confirmResolve(true)">확인</button>
     </div>
   </div>
 </div>
@@ -630,128 +503,152 @@
 <div class="toast" id="toast"></div>
 
 <script>
-/* ═══════════════════════════════════════════
-   DATA
-═══════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════
+   DEFAULT CATEGORIES & COLORS
+═══════════════════════════════════════════════════ */
+const DEFAULT_CATS = [
+  {name:'Travel',icon:'✈️'},{name:'Adventure',icon:'🧗'},{name:'Culture',icon:'🎭'},
+  {name:'Food',icon:'🍜'},{name:'Learning',icon:'📚'},{name:'Career',icon:'💼'},
+  {name:'Health',icon:'🏃'},{name:'Relationship',icon:'❤️'},{name:'Creative',icon:'🎨'},
+  {name:'Other',icon:'⭐'},
+];
 const CAT_COLORS = {
-  Travel:       { bg:'rgba(99,179,237,0.15)',  text:'#63b3ed', bar:'#63b3ed' },
-  Adventure:    { bg:'rgba(252,129,74,0.15)',   text:'#fc814a', bar:'#fc814a' },
-  Culture:      { bg:'rgba(183,148,246,0.15)',  text:'#b794f6', bar:'#b794f6' },
-  Food:         { bg:'rgba(246,173,85,0.15)',   text:'#f6ad55', bar:'#f6ad55' },
-  Learning:     { bg:'rgba(72,187,120,0.15)',   text:'#48bb78', bar:'#48bb78' },
-  Career:       { bg:'rgba(201,168,76,0.15)',   text:'#c9a84c', bar:'#c9a84c' },
-  Health:       { bg:'rgba(109,191,138,0.15)',  text:'#6dbf8a', bar:'#6dbf8a' },
-  Relationship: { bg:'rgba(236,64,122,0.15)',   text:'#ec407a', bar:'#ec407a' },
-  Creative:     { bg:'rgba(237,137,54,0.15)',   text:'#ed8936', bar:'#ed8936' },
-  Other:        { bg:'rgba(160,160,160,0.15)',  text:'#a0a0a0', bar:'#a0a0a0' },
+  Travel:       {bg:'rgba(99,179,237,0.13)',  text:'#2b7ab5', bar:'#63b3ed'},
+  Adventure:    {bg:'rgba(252,129,74,0.13)',  text:'#c05a20', bar:'#fc814a'},
+  Culture:      {bg:'rgba(183,148,246,0.13)', text:'#7c52c8', bar:'#b794f6'},
+  Food:         {bg:'rgba(246,173,85,0.13)',  text:'#b07010', bar:'#f6ad55'},
+  Learning:     {bg:'rgba(72,187,120,0.13)',  text:'#2a8050', bar:'#48bb78'},
+  Career:       {bg:'rgba(184,137,46,0.13)',  text:'#8a6010', bar:'#c9a84c'},
+  Health:       {bg:'rgba(109,191,138,0.13)', text:'#2e7a52', bar:'#6dbf8a'},
+  Relationship: {bg:'rgba(236,64,122,0.13)',  text:'#a02060', bar:'#ec407a'},
+  Creative:     {bg:'rgba(237,137,54,0.13)',  text:'#a05018', bar:'#ed8936'},
+  Other:        {bg:'rgba(150,150,150,0.13)', text:'#707070', bar:'#a0a0a0'},
 };
-const CAT_ICONS = {
-  Travel:'✈️', Adventure:'🧗', Culture:'🎭', Food:'🍜',
-  Learning:'📚', Career:'💼', Health:'🏃', Relationship:'❤️',
-  Creative:'🎨', Other:'⭐'
-};
+function catColor(n){return CAT_COLORS[n]||{bg:'rgba(150,150,150,0.13)',text:'#707070',bar:'#a0a0a0'};}
 
-let items = JSON.parse(localStorage.getItem('milestone_items') || '[]');
-let editingId = null;
-let pendingDoneId = null;
-let activeCat = 'all';
+/* ═══════════════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════════════ */
+let items      = JSON.parse(localStorage.getItem('sl_items') || '[]');
+let customCats = JSON.parse(localStorage.getItem('sl_cats')  || 'null') || DEFAULT_CATS.map(c=>({...c}));
+let activeCat    = 'all';
 let activeFilter = 'all';
+let activeSort   = 'newest';
+let searchQuery  = '';
+let editingId    = null;
+let pendingDoneId = null;
 
-function save() {
-  localStorage.setItem('milestone_items', JSON.stringify(items));
-}
-function genId() {
-  return Date.now().toString(36) + Math.random().toString(36).slice(2,6);
-}
+function saveItems(){localStorage.setItem('sl_items',JSON.stringify(items));}
+function saveCats() {localStorage.setItem('sl_cats', JSON.stringify(customCats));}
+function genId()    {return Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
+function catIcon(n) {return (customCats.find(c=>c.name===n)||{}).icon||'⭐';}
 
-/* ═══════════════════════════════════════════
+/* ═══════════════════════════════════════════════════
    RENDER
-═══════════════════════════════════════════ */
-function render() {
+═══════════════════════════════════════════════════ */
+function render(){
   renderOverall();
   renderCatProgress();
   renderCatPills();
   renderList();
+  populateCatSelect();
 }
 
-function renderOverall() {
-  const total = items.length;
-  const done = items.filter(i => i.done).length;
-  const pct = total === 0 ? 0 : Math.round((done / total) * 100);
-  document.getElementById('overall-pct').textContent = pct + '%';
-  document.getElementById('overall-counts').textContent = done + ' / ' + total + ' 완료';
-  document.getElementById('overall-bar').style.width = pct + '%';
+function renderOverall(){
+  const total=items.length, done=items.filter(i=>i.done).length;
+  const pct=total?Math.round(done/total*100):0;
+  document.getElementById('overall-pct').textContent    = pct+'%';
+  document.getElementById('overall-counts').textContent = done+' / '+total+' 완료';
+  document.getElementById('overall-bar').style.width    = pct+'%';
 }
 
-function renderCatProgress() {
-  const cats = [...new Set(items.map(i => i.cat))].sort();
-  const grid = document.getElementById('cat-progress-grid');
-  const section = document.getElementById('cat-progress-section');
-  if (cats.length === 0) { section.style.display = 'none'; return; }
-  section.style.display = '';
-  grid.innerHTML = cats.map(cat => {
-    const catItems = items.filter(i => i.cat === cat);
-    const done = catItems.filter(i => i.done).length;
-    const pct = catItems.length === 0 ? 0 : Math.round((done / catItems.length) * 100);
-    const col = CAT_COLORS[cat] || CAT_COLORS.Other;
-    const isActive = activeCat === cat;
-    return `<div class="cat-prog-card${isActive?' active':''}" onclick="setCat('${cat}')">
-      <div class="cat-prog-name"><span class="cat-icon">${CAT_ICONS[cat]||'⭐'}</span>${cat}</div>
+function renderCatProgress(){
+  const cats=[...new Set(items.map(i=>i.cat))].sort();
+  const sec=document.getElementById('cat-progress-section');
+  if(!cats.length){sec.style.display='none';return;}
+  sec.style.display='';
+  document.getElementById('cat-progress-grid').innerHTML=cats.map(cat=>{
+    const ci=items.filter(i=>i.cat===cat);
+    const done=ci.filter(i=>i.done).length;
+    const pct=ci.length?Math.round(done/ci.length*100):0;
+    const col=catColor(cat);
+    return `<div class="cat-prog-card${activeCat===cat?' active':''}" onclick="setCat('${esc(cat)}')">
+      <div class="cat-prog-name">${catIcon(cat)} ${esc(cat)}</div>
       <div class="cat-prog-pct" style="color:${col.text}">${pct}%</div>
       <div class="cat-prog-bar"><div class="cat-prog-bar-fill" style="width:${pct}%;background:${col.bar}"></div></div>
     </div>`;
   }).join('');
 }
 
-function renderCatPills() {
-  const cats = [...new Set(items.map(i => i.cat))].sort();
-  const wrap = document.getElementById('cat-scroll-wrap');
-  const allCount = items.length;
-  const pills = [
-    `<div class="cat-pill${activeCat==='all'?' active':''}" onclick="setCat('all')">전체 <span class="pill-count">${allCount}</span></div>`
-  ].concat(cats.map(cat => {
-    const cnt = items.filter(i => i.cat === cat).length;
-    return `<div class="cat-pill${activeCat===cat?' active':''}" onclick="setCat('${cat}')">${CAT_ICONS[cat]||''} ${cat} <span class="pill-count">${cnt}</span></div>`;
+function renderCatPills(){
+  const cats=[...new Set(items.map(i=>i.cat))].sort();
+  const pills=[
+    `<div class="cat-pill${activeCat==='all'?' active':''}" onclick="setCat('all')">전체 <span class="pill-count">${items.length}</span></div>`
+  ].concat(cats.map(cat=>{
+    const cnt=items.filter(i=>i.cat===cat).length;
+    return `<div class="cat-pill${activeCat===cat?' active':''}" onclick="setCat('${esc(cat)}')">${catIcon(cat)} ${esc(cat)} <span class="pill-count">${cnt}</span></div>`;
   }));
-  wrap.innerHTML = pills.join('');
+  document.getElementById('cat-scroll-wrap').innerHTML=pills.join('');
 }
 
-function renderList() {
-  let filtered = activeCat === 'all' ? [...items] : items.filter(i => i.cat === activeCat);
-  if (activeFilter === 'todo') filtered = filtered.filter(i => !i.done);
-  if (activeFilter === 'done') filtered = filtered.filter(i => i.done);
+function renderList(){
+  let list=activeCat==='all'?[...items]:items.filter(i=>i.cat===activeCat);
+  if(activeFilter==='starred') list=list.filter(i=>i.starred);
+  if(activeFilter==='todo')    list=list.filter(i=>!i.done);
+  if(activeFilter==='done')    list=list.filter(i=>i.done);
+  if(searchQuery){
+    const q=searchQuery.toLowerCase();
+    list=list.filter(i=>i.title.toLowerCase().includes(q)||(i.memo||'').toLowerCase().includes(q));
+  }
+  list=sortItems(list,activeSort);
 
-  const titleEl = document.getElementById('list-title');
-  titleEl.textContent = activeCat === 'all' ? '전체 목표' : (CAT_ICONS[activeCat] || '') + ' ' + activeCat;
+  document.getElementById('list-title').textContent=
+    activeCat==='all'?'전체 목표':catIcon(activeCat)+' '+activeCat;
 
-  const listEl = document.getElementById('item-list');
-  if (filtered.length === 0) {
-    listEl.innerHTML = `<div class="empty-state"><div class="empty-icon">${activeCat==='all'?'🌟':CAT_ICONS[activeCat]||'⭐'}</div><p>${activeFilter==='done'?'아직 완료한 목표가 없어요.':activeFilter==='todo'?'예정된 목표가 없어요!':'위에서 첫 번째 목표를 추가해보세요.'}</p></div>`;
+  const el=document.getElementById('item-list');
+  if(!list.length){
+    const msg=searchQuery?`"${esc(searchQuery)}" 검색 결과가 없어요.`
+      :activeFilter==='done'    ?'아직 완료한 목표가 없어요.'
+      :activeFilter==='todo'    ?'예정된 목표가 없어요!'
+      :activeFilter==='starred' ?'중요 표시한 목표가 없어요.'
+      :'위에서 첫 번째 목표를 추가해보세요.';
+    el.innerHTML=`<div class="empty-state"><div class="empty-icon">🌟</div><p>${msg}</p></div>`;
     return;
   }
-
-  listEl.innerHTML = filtered.map(item => {
-    const col = CAT_COLORS[item.cat] || CAT_COLORS.Other;
-    return `
-    <div class="item-card${item.done?' done':''}" id="card-${item.id}">
+  el.innerHTML=list.map(item=>{
+    const col=catColor(item.cat);
+    /* Bug fix: item.id can contain characters safe for HTML attribute but we
+       use esc() on category names that appear inside onclick strings.
+       item.id only contains alphanumeric chars from genId() so it's safe. */
+    return `<div class="item-card${item.done?' done':''}${item.starred?' starred':''}" id="card-${item.id}">
       <div class="item-top">
         <div class="item-check" onclick="toggleDone('${item.id}')">
-          ${item.done ? `<svg viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>` : ''}
+          ${item.done?`<svg viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`:''}
         </div>
         <div class="item-body">
-          <div class="item-title">${escHtml(item.title)}</div>
+          <div class="item-title">${esc(item.title)}</div>
           <div class="item-meta">
-            <span class="item-cat-badge" style="background:${col.bg};color:${col.text}">${CAT_ICONS[item.cat]||''} ${escHtml(item.cat)}</span>
-            ${item.done && item.doneDate ? `<span class="item-date">📅 ${formatDate(item.doneDate)}</span>` : ''}
+            <span class="item-cat-badge" style="background:${col.bg};color:${col.text}">${catIcon(item.cat)} ${esc(item.cat)}</span>
+            ${item.done&&item.doneDate?`<span class="item-date">📅 ${fmtDate(item.doneDate)}</span>`:''}
+            ${!item.done&&item.addedAt?`<span class="item-added-date">+${fmtDate(item.addedAt)}</span>`:''}
           </div>
-          ${item.done && item.memo ? `<div class="item-note">${escHtml(item.memo)}</div>` : ''}
+          ${item.done&&item.memo?`<div class="item-note">${esc(item.memo)}</div>`:''}
         </div>
         <div class="item-actions">
-          <button class="icon-btn" onclick="openEditModal('${item.id}')" title="Edit">
-            <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M9 2l2 2-7 7H2V9l7-7z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
+          <button class="icon-btn star-btn${item.starred?' on':''}" onclick="toggleStar('${item.id}')" title="${item.starred?'중요 해제':'중요 표시'}">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="${item.starred?'currentColor':'none'}" stroke="currentColor" stroke-width="1.4">
+              <path d="M7 1l1.8 3.6L13 5.3l-3 2.9.7 4.1L7 10.2l-3.7 2.1.7-4.1-3-2.9 4.2-.7z" stroke-linejoin="round"/>
+            </svg>
           </button>
-          <button class="icon-btn delete" onclick="deleteItem('${item.id}')" title="Delete">
-            <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 2l9 9M11 2L2 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <button class="icon-btn" onclick="openEditModal('${item.id}')" title="수정">
+            <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+              <path d="M9 2l2 2-7 7H2V9l7-7z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
+            </svg>
+          </button>
+          <button class="icon-btn delete-btn" onclick="deleteItem('${item.id}')" title="삭제">
+            <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+              <path d="M2 2l9 9M11 2L2 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
           </button>
         </div>
       </div>
@@ -759,195 +656,474 @@ function renderList() {
   }).join('');
 }
 
-/* ═══════════════════════════════════════════
-   ACTIONS
-═══════════════════════════════════════════ */
-function setCat(cat) {
-  activeCat = cat;
-  render();
+/* ── Sort ── */
+function sortItems(list,mode){
+  const c=[...list];
+  /* For items without addedAt (legacy data), fall back to id-based ordering */
+  if(mode==='newest')    return c.sort((a,b)=>{
+    const ta=a.addedAt||a.id||'', tb=b.addedAt||b.id||'';
+    return tb>ta?1:tb<ta?-1:0;
+  });
+  if(mode==='oldest')    return c.sort((a,b)=>{
+    const ta=a.addedAt||a.id||'', tb=b.addedAt||b.id||'';
+    return ta>tb?1:ta<tb?-1:0;
+  });
+  if(mode==='starred')   return c.sort((a,b)=>(b.starred?1:0)-(a.starred?1:0));
+  if(mode==='alpha')     return c.sort((a,b)=>a.title.localeCompare(b.title,'ko'));
+  if(mode==='cat')       return c.sort((a,b)=>a.cat.localeCompare(b.cat,'ko'));
+  if(mode==='done-last') return c.sort((a,b)=>(a.done?1:0)-(b.done?1:0));
+  return c;
 }
-function setFilter(f, el) {
-  activeFilter = f;
-  document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+
+/* ── Cat select ── */
+function populateCatSelect(){
+  const sel=document.getElementById('f-cat'), cur=sel.value;
+  sel.innerHTML=customCats.map(c=>`<option value="${esc(c.name)}">${c.icon} ${esc(c.name)}</option>`).join('');
+  if(cur&&customCats.find(c=>c.name===cur)) sel.value=cur;
+}
+
+/* ═══════════════════════════════════════════════════
+   FILTER / SORT / SEARCH
+═══════════════════════════════════════════════════ */
+function setCat(cat){activeCat=cat;closeSortMenu();render();}
+
+function setFilter(f,el){
+  activeFilter=f;
+  document.querySelectorAll('.filter-tab').forEach(t=>t.classList.remove('active'));
   el.classList.add('active');
   renderList();
 }
 
-function openAddModal() {
-  editingId = null;
-  document.getElementById('modal-title').textContent = '새 목표';
-  document.getElementById('f-title').value = '';
-  document.getElementById('f-cat').value = 'Travel';
-  openModal('item-modal');
-  setTimeout(() => document.getElementById('f-title').focus(), 350);
-}
-function openEditModal(id) {
-  const item = items.find(i => i.id === id);
-  if (!item) return;
-  editingId = id;
-  document.getElementById('modal-title').textContent = '목표 수정';
-  document.getElementById('f-title').value = item.title;
-  document.getElementById('f-cat').value = item.cat;
-  openModal('item-modal');
-  setTimeout(() => document.getElementById('f-title').focus(), 350);
-}
-function saveItem() {
-  const title = document.getElementById('f-title').value.trim();
-  if (!title) { showToast('목표 제목을 입력해주세요.'); return; }
-  const cat = document.getElementById('f-cat').value;
-  if (editingId) {
-    const item = items.find(i => i.id === editingId);
-    if (item) { item.title = title; item.cat = cat; }
-  } else {
-    items.unshift({ id: genId(), title, cat, done: false, doneDate: null, memo: '' });
-  }
-  save(); render(); closeModal('item-modal');
-  showToast(editingId ? '목표가 수정됐어요!' : '목표가 추가됐어요! 🌟');
+const SORT_LABELS={newest:'최신순',oldest:'오래된순',starred:'중요 먼저',alpha:'이름순',cat:'카테고리순','done-last':'미완료 먼저'};
+function setSort(mode){
+  activeSort=mode;
+  document.getElementById('sort-label').textContent=SORT_LABELS[mode]||mode;
+  ['newest','oldest','starred','alpha','cat','done-last'].forEach(k=>{
+    const el=document.getElementById('sc-'+k);
+    if(el) el.style.display=k===mode?'':'none';
+  });
+  document.querySelectorAll('.sort-option').forEach(o=>o.classList.toggle('active',o.dataset.sort===mode));
+  closeSortMenu();
+  renderList();
 }
 
-function toggleDone(id) {
-  const item = items.find(i => i.id === id);
-  if (!item) return;
-  if (item.done) {
-    item.done = false; item.doneDate = null; item.memo = '';
-    save(); render(); showToast('예정으로 되돌렸어요.');
+function toggleSortMenu(e){
+  e.stopPropagation();
+  const dd=document.getElementById('sort-dropdown');
+  const rect=document.getElementById('sort-btn').getBoundingClientRect();
+  if(!dd.classList.contains('open')){
+    dd.style.top=(rect.bottom+6)+'px';
+    dd.style.right=(window.innerWidth-rect.right)+'px';
+    dd.style.left='auto';
+  }
+  dd.classList.toggle('open');
+}
+function closeSortMenu(){document.getElementById('sort-dropdown').classList.remove('open');}
+document.addEventListener('click',()=>closeSortMenu());
+
+function onSearchInput(inp){
+  searchQuery=inp.value;
+  document.getElementById('search-clear').classList.toggle('visible',!!searchQuery);
+  renderList();
+}
+function clearSearch(){
+  searchQuery='';
+  document.getElementById('search-input').value='';
+  document.getElementById('search-clear').classList.remove('visible');
+  renderList();
+}
+
+/* ═══════════════════════════════════════════════════
+   ITEM ACTIONS
+═══════════════════════════════════════════════════ */
+function openAddModal(){
+  editingId=null;
+  document.getElementById('modal-title').textContent='새 목표';
+  document.getElementById('f-title').value='';
+  populateCatSelect();
+  openModal('item-modal');
+  setTimeout(()=>document.getElementById('f-title').focus(),350);
+}
+
+function openEditModal(id){
+  const item=items.find(i=>i.id===id);
+  if(!item) return;
+  editingId=id;
+  document.getElementById('modal-title').textContent='목표 수정';
+  document.getElementById('f-title').value=item.title;
+  populateCatSelect();
+  document.getElementById('f-cat').value=item.cat;
+  openModal('item-modal');
+  setTimeout(()=>document.getElementById('f-title').focus(),350);
+}
+
+function saveItem(){
+  const title=document.getElementById('f-title').value.trim();
+  if(!title){showToast('목표 제목을 입력해주세요.');return;}
+  const cat=document.getElementById('f-cat').value;
+  if(editingId){
+    const item=items.find(i=>i.id===editingId);
+    if(item){item.title=title;item.cat=cat;}
   } else {
-    pendingDoneId = id;
-    document.getElementById('d-date').value = new Date().toISOString().slice(0,10);
-    document.getElementById('d-memo').value = '';
+    items.unshift({
+      id:genId(),title,cat,
+      done:false,doneDate:null,memo:'',
+      starred:false,addedAt:today()
+    });
+  }
+  saveItems();render();closeModal('item-modal');
+  showToast(editingId?'목표가 수정됐어요!':'목표가 추가됐어요! 🌟');
+}
+
+function toggleStar(id){
+  const item=items.find(i=>i.id===id);
+  if(!item) return;
+  item.starred=!item.starred;
+  saveItems();render();
+  showToast(item.starred?'⭐ 중요 표시했어요.':'중요 표시를 해제했어요.');
+}
+
+function toggleDone(id){
+  const item=items.find(i=>i.id===id);
+  if(!item) return;
+  if(item.done){
+    /* Warn before wiping memo/date */
+    showConfirm({
+      icon:'↩️',
+      title:'완료를 취소할까요?',
+      desc:(item.memo&&item.memo.trim())
+        ?'완료 날짜와 메모가 삭제돼요. 이 작업은 되돌릴 수 없어요.'
+        :'이 목표를 다시 예정으로 되돌릴게요.',
+      okLabel:'취소하기',
+      danger:true,
+    }).then(ok=>{
+      if(!ok) return;
+      item.done=false;item.doneDate=null;item.memo='';
+      saveItems();render();showToast('예정으로 되돌렸어요.');
+    });
+  } else {
+    pendingDoneId=id;
+    document.getElementById('d-date').value=today();
+    document.getElementById('d-memo').value='';
     openModal('done-modal');
   }
 }
 
-function confirmDone() {
-  const item = items.find(i => i.id === pendingDoneId);
-  if (!item) return;
-  item.done = true;
-  item.doneDate = document.getElementById('d-date').value || new Date().toISOString().slice(0,10);
-  item.memo = document.getElementById('d-memo').value.trim();
-  save(); render(); closeModal('done-modal');
+function confirmDone(){
+  const item=items.find(i=>i.id===pendingDoneId);
+  if(!item) return;
+  item.done=true;
+  item.doneDate=document.getElementById('d-date').value||today();
+  item.memo=document.getElementById('d-memo').value.trim();
+  saveItems();render();closeModal('done-modal');
   showToast('완료했어요! 정말 대단해요! 🎊');
   launchConfetti();
 }
 
-function deleteItem(id) {
-  if (!confirm('이 목표를 삭제할까요?')) return;
-  items = items.filter(i => i.id !== id);
-  save(); render(); showToast('목표가 삭제됐어요.');
+function deleteItem(id){
+  const item=items.find(i=>i.id===id);
+  if(!item) return;
+  /* Use textContent assignment in showConfirm — desc is plain text, safe */
+  showConfirm({
+    icon:'🗑️',
+    title:'목표를 삭제할까요?',
+    desc:`"${item.title}" 항목이 영구적으로 삭제돼요.`,
+    okLabel:'삭제',
+    danger:true,
+  }).then(ok=>{
+    if(!ok) return;
+    items=items.filter(i=>i.id!==id);
+    saveItems();render();showToast('목표가 삭제됐어요.');
+  });
 }
 
-/* ═══════════════════════════════════════════
+/* ═══════════════════════════════════════════════════
+   CATEGORY MANAGER
+═══════════════════════════════════════════════════ */
+function openCatManager(){
+  renderCatChips();
+  /* Open cat-modal on top of item-modal without closing item-modal */
+  document.getElementById('cat-modal').classList.add('open');
+  /* Don't change body overflow — it's already hidden from item-modal */
+}
+function closeCatManager(){
+  document.getElementById('cat-modal').classList.remove('open');
+  populateCatSelect();
+  saveCats();
+  /* Don't restore overflow — item-modal may still be open */
+}
+
+function renderCatChips(){
+  document.getElementById('cat-chips').innerHTML=customCats.map((c,idx)=>{
+    const inUse=items.some(i=>i.cat===c.name);
+    /* Only allow deletion when the category is not in use */
+    return `<div class="cat-chip">${c.icon} ${esc(c.name)}
+      ${!inUse?`<button class="cat-chip-del" onclick="removeCat(${idx})">×</button>`:''}
+    </div>`;
+  }).join('');
+}
+
+function addCustomCat(){
+  const emoji=document.getElementById('new-cat-emoji').value.trim()||'📌';
+  const name =document.getElementById('new-cat-name').value.trim();
+  if(!name){showToast('카테고리 이름을 입력해주세요.');return;}
+  if(customCats.find(c=>c.name===name)){showToast('이미 있는 카테고리예요.');return;}
+  customCats.push({name,icon:emoji});
+  document.getElementById('new-cat-emoji').value='';
+  document.getElementById('new-cat-name').value='';
+  renderCatChips();
+  showToast('카테고리가 추가됐어요!');
+}
+
+/* Bug fix: Enter in cat inputs must NOT bubble up to the item-modal Enter handler */
+function handleCatKey(e){
+  if(e.key==='Enter'){e.preventDefault();e.stopPropagation();addCustomCat();}
+}
+
+function removeCat(idx){
+  if(items.some(i=>i.cat===customCats[idx].name)){
+    showToast('이 카테고리를 사용하는 목표가 있어요.');return;
+  }
+  customCats.splice(idx,1);
+  renderCatChips();
+}
+
+/* ═══════════════════════════════════════════════════
+   DATA EXPORT / IMPORT
+═══════════════════════════════════════════════════ */
+function openDataSheet(){openModal('data-modal');}
+
+function exportData(){
+  const payload={version:1,exportedAt:new Date().toISOString(),items,customCats};
+  const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download=`someday-list-${today()}.json`;a.click();
+  URL.revokeObjectURL(url);
+  showToast('📤 내보내기 완료!');
+  closeModal('data-modal');
+}
+
+function triggerImport(){document.getElementById('import-file').click();}
+
+document.getElementById('import-file').addEventListener('change',function(){
+  const file=this.files[0];if(!file) return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const data=JSON.parse(e.target.result);
+      const incoming=Array.isArray(data)?data:(Array.isArray(data.items)?data.items:[]);
+      if(!incoming.length) throw new Error('empty');
+      const ids=new Set(items.map(i=>i.id));
+      let added=0;
+      incoming.forEach(item=>{
+        if(item&&item.id&&item.title&&!ids.has(item.id)){
+          /* Ensure all expected fields exist for legacy files */
+          items.push({
+            id:item.id, title:item.title,
+            cat:item.cat||'Other',
+            done:!!item.done,
+            doneDate:item.doneDate||null,
+            memo:item.memo||'',
+            starred:!!item.starred,
+            addedAt:item.addedAt||today(),
+          });
+          added++;
+        }
+      });
+      if(data.customCats&&Array.isArray(data.customCats)){
+        data.customCats.forEach(c=>{
+          if(c&&c.name&&!customCats.find(x=>x.name===c.name))
+            customCats.push({name:c.name,icon:c.icon||'📌'});
+        });
+        saveCats();
+      }
+      saveItems();render();closeModal('data-modal');
+      showToast(`📥 ${added}개 목표를 불러왔어요!`);
+    } catch {
+      showToast('⚠️ 파일을 읽을 수 없어요. JSON 파일인지 확인해주세요.');
+    }
+    this.value=''; // reset so same file can be re-imported
+  };
+  reader.readAsText(file);
+});
+
+/* ═══════════════════════════════════════════════════
    MODAL HELPERS
-═══════════════════════════════════════════ */
-function openModal(id) {
+═══════════════════════════════════════════════════ */
+function openModal(id){
   document.getElementById(id).classList.add('open');
-  document.body.style.overflow = 'hidden';
+  document.body.style.overflow='hidden';
 }
-function closeModal(id) {
+function closeModal(id){
   document.getElementById(id).classList.remove('open');
-  document.body.style.overflow = '';
+  /* Restore scroll only when ALL modals and confirm are closed */
+  const anyOpen=document.querySelector('.modal-overlay.open, .confirm-overlay.open');
+  if(!anyOpen) document.body.style.overflow='';
 }
-function handleModalOverlayClick(e) {
-  if (e.target === document.getElementById('item-modal')) closeModal('item-modal');
-}
-function handleDoneOverlayClick(e) {
-  if (e.target === document.getElementById('done-modal')) closeModal('done-modal');
+function handleOverlayClick(e,id){
+  if(e.target===document.getElementById(id)) closeModal(id);
 }
 
-/* ═══════════════════════════════════════════
+/* ═══════════════════════════════════════════════════
+   CONFIRM MODAL (Promise-based)
+═══════════════════════════════════════════════════ */
+let _cr=null;
+function showConfirm({icon='⚠️',title='',desc='',okLabel='확인',danger=false}){
+  document.getElementById('confirm-icon').textContent=icon;
+  document.getElementById('confirm-title').textContent=title;
+  document.getElementById('confirm-desc').textContent=desc; // textContent: safe, no XSS
+  const btn=document.getElementById('confirm-ok-btn');
+  btn.textContent=okLabel;
+  btn.className=danger?'btn-danger':'btn-primary';
+  document.getElementById('confirm-overlay').classList.add('open');
+  document.body.style.overflow='hidden';
+  return new Promise(res=>{_cr=res;});
+}
+function confirmResolve(val){
+  document.getElementById('confirm-overlay').classList.remove('open');
+  const anyOpen=document.querySelector('.modal-overlay.open');
+  if(!anyOpen) document.body.style.overflow='';
+  if(_cr){_cr(val);_cr=null;}
+}
+
+/* ═══════════════════════════════════════════════════
    TOAST
-═══════════════════════════════════════════ */
-let toastTimer = null;
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove('show'), 2500);
+═══════════════════════════════════════════════════ */
+let _tt=null;
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  clearTimeout(_tt);_tt=setTimeout(()=>t.classList.remove('show'),2600);
 }
 
-/* ═══════════════════════════════════════════
+/* ═══════════════════════════════════════════════════
    CONFETTI
-═══════════════════════════════════════════ */
-function launchConfetti() {
-  const canvas = document.getElementById('confetti-canvas');
-  const ctx = canvas.getContext('2d');
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-  const pieces = Array.from({length: 80}, () => ({
-    x: Math.random() * canvas.width,
-    y: -10 - Math.random() * 100,
-    r: 4 + Math.random() * 6,
-    d: 2 + Math.random() * 3,
-    color: ['#c9a84c','#e8c97a','#6dbf8a','#63b3ed','#fc814a','#b794f6'][Math.floor(Math.random()*6)],
-    tilt: Math.random() * 360,
-    tiltSpd: (Math.random() - 0.5) * 8,
+═══════════════════════════════════════════════════ */
+function launchConfetti(){
+  const cv=document.getElementById('confetti-canvas'),ctx=cv.getContext('2d');
+  cv.width=window.innerWidth;cv.height=window.innerHeight;
+  const pieces=Array.from({length:90},()=>({
+    x:Math.random()*cv.width, y:-10-Math.random()*120,
+    r:4+Math.random()*6, d:2+Math.random()*3,
+    color:['#c9a84c','#e8c97a','#6dbf8a','#63b3ed','#fc814a','#b794f6','#ec407a'][Math.floor(Math.random()*7)],
+    tilt:Math.random()*360, ts:(Math.random()-0.5)*8,
   }));
-  let frame = 0;
-  function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    pieces.forEach(p => {
-      ctx.save();
-      ctx.translate(p.x, p.y);
-      ctx.rotate((p.tilt * Math.PI) / 180);
-      ctx.fillStyle = p.color;
-      ctx.fillRect(-p.r/2, -p.r/2, p.r, p.r * 0.5);
-      ctx.restore();
-      p.y += p.d;
-      p.x += Math.sin(frame * 0.05) * 1.2;
-      p.tilt += p.tiltSpd;
+  let fr=0;
+  (function draw(){
+    ctx.clearRect(0,0,cv.width,cv.height);
+    pieces.forEach(p=>{
+      ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.tilt*Math.PI/180);
+      ctx.fillStyle=p.color;ctx.fillRect(-p.r/2,-p.r/2,p.r,p.r*0.5);ctx.restore();
+      p.y+=p.d; p.x+=Math.sin(fr*0.05)*1.2; p.tilt+=p.ts;
     });
-    frame++;
-    if (frame < 120) requestAnimationFrame(draw);
-    else ctx.clearRect(0, 0, canvas.width, canvas.height);
-  }
-  draw();
+    if(++fr<130) requestAnimationFrame(draw);
+    else ctx.clearRect(0,0,cv.width,cv.height);
+  })();
 }
 
-/* ═══════════════════════════════════════════
+/* ═══════════════════════════════════════════════════
    UTILS
-═══════════════════════════════════════════ */
-function escHtml(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+═══════════════════════════════════════════════════ */
+function esc(s){
+  return String(s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
-function formatDate(d) {
-  if (!d) return '';
-  const dt = new Date(d + 'T00:00:00');
-  return dt.toLocaleDateString('ko-KR', { year:'numeric', month:'long', day:'numeric' });
-}
-
-/* ═══════════════════════════════════════════
-   SAMPLE DATA (first launch)
-═══════════════════════════════════════════ */
-function seedData() {
-  if (items.length > 0) return;
-  items = [
-    { id:genId(), title:'See the Northern Lights in Iceland', cat:'Travel', done:true, doneDate:'2024-02-14', memo:'Absolutely breathtaking — danced green across the whole sky. Worth every cold second.' },
-    { id:genId(), title:'Learn to make pasta from scratch', cat:'Food', done:true, doneDate:'2024-06-01', memo:'Made tagliatelle with grandma\'s rolling pin. Messy but delicious.' },
-    { id:genId(), title:'Hike the Camino de Santiago', cat:'Adventure', done:false, doneDate:null, memo:'' },
-    { id:genId(), title:'Visit all 7 continents', cat:'Travel', done:false, doneDate:null, memo:'' },
-    { id:genId(), title:'Read 50 books in a year', cat:'Learning', done:false, doneDate:null, memo:'' },
-    { id:genId(), title:'Run a half marathon', cat:'Health', done:false, doneDate:null, memo:'' },
-    { id:genId(), title:'Learn basic Spanish', cat:'Learning', done:false, doneDate:null, memo:'' },
-  ];
-  save();
+function today(){return new Date().toISOString().slice(0,10);}
+function fmtDate(d){
+  if(!d) return '';
+  return new Date(d+'T00:00:00').toLocaleDateString('ko-KR',{year:'numeric',month:'long',day:'numeric'});
 }
 
-/* ═══════════════════════════════════════════
-   KEYBOARD (desktop)
-═══════════════════════════════════════════ */
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') {
-    closeModal('item-modal');
-    closeModal('done-modal');
+/* ═══════════════════════════════════════════════════
+   KEYBOARD
+═══════════════════════════════════════════════════ */
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){
+    /* Close in reverse z-order */
+    if(document.getElementById('confirm-overlay').classList.contains('open')){confirmResolve(false);return;}
+    if(document.getElementById('cat-modal').classList.contains('open')){closeCatManager();return;}
+    ['item-modal','done-modal','data-modal'].forEach(closeModal);
+    closeSortMenu();
   }
-  if (e.key === 'Enter' && document.getElementById('item-modal').classList.contains('open')) {
-    const focused = document.activeElement;
-    if (focused && focused.tagName !== 'TEXTAREA' && focused.tagName !== 'SELECT') saveItem();
+  /* Enter to save — only when item-modal is topmost and cat-modal is not open */
+  if(e.key==='Enter'
+    && document.getElementById('item-modal').classList.contains('open')
+    && !document.getElementById('cat-modal').classList.contains('open')
+  ){
+    const f=document.activeElement;
+    if(f&&f.tagName!=='TEXTAREA'&&f.tagName!=='SELECT') saveItem();
   }
 });
 
-// Init
+/* ═══════════════════════════════════════════════════
+   SEED DATA (first launch only)
+═══════════════════════════════════════════════════ */
+function seedData(){
+  if(items.length>0) return;
+  items=[
+    {id:genId(),title:'아이슬란드에서 오로라 보기',  cat:'Travel',   done:true, doneDate:'2024-02-14',memo:'하늘이 초록빛으로 춤을 추었어요. 평생 잊지 못할 밤이었어요.', starred:true, addedAt:'2023-05-10'},
+    {id:genId(),title:'파스타 직접 만들어보기',      cat:'Food',     done:true, doneDate:'2024-06-01',memo:'방망이로 면을 직접 밀었어요. 엉망이었지만 정말 맛있었어요.', starred:false,addedAt:'2023-07-01'},
+    {id:genId(),title:'산티아고 순례길 완주하기',    cat:'Adventure',done:false,doneDate:null,memo:'',starred:true, addedAt:'2023-09-15'},
+    {id:genId(),title:'7대륙 모두 방문하기',         cat:'Travel',   done:false,doneDate:null,memo:'',starred:false,addedAt:'2023-11-20'},
+    {id:genId(),title:'1년에 책 50권 읽기',          cat:'Learning', done:false,doneDate:null,memo:'',starred:false,addedAt:'2024-01-01'},
+    {id:genId(),title:'하프 마라톤 완주하기',        cat:'Health',   done:false,doneDate:null,memo:'',starred:true, addedAt:'2024-03-05'},
+    {id:genId(),title:'스페인어 기초 배우기',        cat:'Learning', done:false,doneDate:null,memo:'',starred:false,addedAt:'2024-04-10'},
+  ];
+  saveItems();
+}
+
+/* ═══════════════════════════════════════════════════
+   PWA — manifest & service worker (inline generation)
+═══════════════════════════════════════════════════ */
+(function setupPWA(){
+  /* Inline manifest via blob URL so no extra file is needed on GitHub Pages */
+  const manifest={
+    name:'Someday List',
+    short_name:'Someday',
+    description:'Your personal bucket list tracker',
+    start_url:'.',
+    display:'standalone',
+    background_color:'#f5f2ec',
+    theme_color:'#f5f2ec',
+    icons:[
+      {src:'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="22" fill="%23b8892e"/><text y=".9em" font-size="70" x="15">🌟</text></svg>',sizes:'any',type:'image/svg+xml'},
+    ],
+  };
+  const mBlob=new Blob([JSON.stringify(manifest)],{type:'application/json'});
+  const mUrl=URL.createObjectURL(mBlob);
+  document.querySelector('link[rel="manifest"]').href=mUrl;
+
+  /* Inline service worker */
+  if('serviceWorker' in navigator){
+    const swCode=`
+const CACHE='someday-v1';
+const SHELL=[self.registration.scope];
+self.addEventListener('install',e=>e.waitUntil(
+  caches.open(CACHE).then(c=>c.addAll(SHELL)).then(()=>self.skipWaiting())
+));
+self.addEventListener('activate',e=>e.waitUntil(
+  caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==CACHE).map(k=>caches.delete(k))))
+    .then(()=>self.clients.claim())
+));
+self.addEventListener('fetch',e=>{
+  if(e.request.method!=='GET') return;
+  e.respondWith(
+    caches.match(e.request).then(r=>r||fetch(e.request).then(nr=>{
+      const clone=nr.clone();
+      caches.open(CACHE).then(c=>c.put(e.request,clone));
+      return nr;
+    }).catch(()=>caches.match(SHELL[0])))
+  );
+});`;
+    const swBlob=new Blob([swCode],{type:'application/javascript'});
+    const swUrl=URL.createObjectURL(swBlob);
+    navigator.serviceWorker.register(swUrl,{scope:'./'}).catch(()=>{});
+  }
+})();
+
+/* ── INIT ── */
 seedData();
 render();
 </script>
