@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Someday List — Bucket List Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f5f2ec;
+    --surface: #ffffff;
+    --surface2: #f0ece4;
+    --border: #e2ddd4;
+    --gold: #b8892e;
+    --gold-light: #a0721a;
+    --gold-dim: rgba(184,137,46,0.12);
+    --text: #1e1c18;
+    --text-muted: #9a9488;
+    --text-soft: #5a5650;
+    --green: #3a9e62;
+    --green-dim: rgba(58,158,98,0.12);
+    --red: #c0484e;
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    line-height: 1.5;
+    min-height: 100dvh;
+    padding-bottom: 80px;
+  }
+
+  /* ── HEADER ── */
+  header {
+    padding: 28px 20px 0;
+    position: relative;
+  }
+  header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    color: var(--gold-light);
+    letter-spacing: 0.02em;
+  }
+  header p {
+    color: var(--text-muted);
+    font-size: 13px;
+    margin-top: 2px;
+    font-weight: 300;
+  }
+
+  /* ── OVERALL PROGRESS ── */
+  .overall-card {
+    margin: 20px 16px 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+  }
+  .overall-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 14px;
+  }
+  .overall-label {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+  .overall-pct {
+    font-family: 'Playfair Display', serif;
+    font-size: 36px;
+    color: var(--gold-light);
+    line-height: 1;
+  }
+  .overall-counts {
+    font-size: 12px;
+    color: var(--text-muted);
+    text-align: right;
+    margin-top: 2px;
+  }
+  .bar-track {
+    height: 6px;
+    background: var(--border);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+  .bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--gold), var(--gold-light));
+    border-radius: 99px;
+    transition: width 0.6s cubic-bezier(0.4,0,0.2,1);
+  }
+
+  /* ── CATEGORY PILLS (scroll) ── */
+  .cat-scroll-wrap {
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding: 16px 16px 0;
+    display: flex;
+    gap: 8px;
+  }
+  .cat-scroll-wrap::-webkit-scrollbar { display: none; }
+  .cat-pill {
+    flex-shrink: 0;
+    padding: 7px 16px;
+    border-radius: 99px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-soft);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .cat-pill .pill-count {
+    background: var(--border);
+    color: var(--text-muted);
+    border-radius: 99px;
+    font-size: 11px;
+    padding: 1px 6px;
+    transition: all 0.2s;
+  }
+  .cat-pill.active {
+    border-color: var(--gold);
+    background: var(--gold-dim);
+    color: var(--gold-light);
+  }
+  .cat-pill.active .pill-count {
+    background: rgba(201,168,76,0.25);
+    color: var(--gold-light);
+  }
+
+  /* ── CATEGORY PROGRESS CARDS ── */
+  .cat-progress-section {
+    padding: 16px 16px 0;
+  }
+  .cat-progress-section-title {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--text-muted);
+    font-weight: 500;
+    margin-bottom: 10px;
+  }
+  .cat-progress-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .cat-prog-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+  .cat-prog-card.active {
+    border-color: var(--gold);
+  }
+  .cat-prog-card:active { opacity: 0.8; }
+  .cat-prog-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-soft);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .cat-prog-name .cat-icon { font-size: 15px; }
+  .cat-prog-pct {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    color: var(--text);
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .cat-prog-bar { height: 4px; background: var(--border); border-radius: 99px; overflow: hidden; }
+  .cat-prog-bar-fill { height: 100%; border-radius: 99px; transition: width 0.5s ease; }
+
+  /* ── LIST SECTION ── */
+  .list-section {
+    padding: 20px 16px 0;
+  }
+  .list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+  .list-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    color: var(--text);
+  }
+  .btn-add {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--gold);
+    color: #ffffff;
+    border: none;
+    border-radius: 99px;
+    padding: 8px 16px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+  }
+  .btn-add:active { transform: scale(0.97); }
+
+  /* Filter tabs */
+  .filter-tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 99px;
+    padding: 4px;
+  }
+  .filter-tab {
+    flex: 1;
+    text-align: center;
+    padding: 6px 10px;
+    border-radius: 99px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    color: var(--text-muted);
+    transition: all 0.2s;
+    border: none;
+    background: transparent;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .filter-tab.active {
+    background: var(--surface2);
+    color: var(--text);
+  }
+
+  /* ── ITEM CARD ── */
+  .item-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 10px;
+    position: relative;
+    transition: border-color 0.2s;
+  }
+  .item-card.done {
+    border-color: rgba(58,158,98,0.3);
+    background: rgba(58,158,98,0.04);
+  }
+  .item-top {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .item-check {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    margin-top: 1px;
+    transition: all 0.2s;
+  }
+  .item-card.done .item-check {
+    background: var(--green);
+    border-color: var(--green);
+    color: #ffffff;
+  }
+  .item-check svg { width: 12px; height: 12px; }
+  .item-body { flex: 1; min-width: 0; }
+  .item-title {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text);
+    line-height: 1.3;
+  }
+  .item-card.done .item-title {
+    color: var(--text-muted);
+    text-decoration: line-through;
+    text-decoration-color: var(--text-muted);
+  }
+  .item-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 7px;
+    align-items: center;
+  }
+  .item-cat-badge {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 99px;
+    font-weight: 500;
+  }
+  .item-date {
+    font-size: 11px;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 3px;
+  }
+  .item-note {
+    margin-top: 8px;
+    font-size: 13px;
+    color: var(--text-soft);
+    font-style: italic;
+    padding: 8px 10px;
+    background: var(--surface2);
+    border-radius: var(--radius-sm);
+    border-left: 2px solid rgba(184,137,46,0.3);
+  }
+  .item-actions {
+    display: flex;
+    gap: 6px;
+    margin-top: 0;
+    flex-shrink: 0;
+  }
+  .icon-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .icon-btn:active { transform: scale(0.9); }
+  .icon-btn.delete:active { color: var(--red); border-color: var(--red); }
+
+  /* ── EMPTY STATE ── */
+  .empty-state {
+    text-align: center;
+    padding: 50px 20px;
+    color: var(--text-muted);
+  }
+  .empty-state .empty-icon { font-size: 40px; margin-bottom: 12px; }
+  .empty-state p { font-size: 14px; }
+
+  /* ── MODAL ── */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 100;
+    display: flex;
+    align-items: flex-end;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s;
+  }
+  .modal-overlay.open {
+    opacity: 1;
+    pointer-events: all;
+  }
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius) var(--radius) 0 0;
+    padding: 24px 20px 40px;
+    width: 100%;
+    max-height: 90dvh;
+    overflow-y: auto;
+    transform: translateY(100%);
+    transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+  }
+  .modal-overlay.open .modal {
+    transform: translateY(0);
+  }
+  .modal-handle {
+    width: 36px;
+    height: 4px;
+    background: var(--border);
+    border-radius: 99px;
+    margin: 0 auto 20px;
+  }
+  .modal-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    margin-bottom: 20px;
+    color: var(--gold-light);
+  }
+  .form-group {
+    margin-bottom: 16px;
+  }
+  .form-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+  }
+  .form-input, .form-select, .form-textarea {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 11px 14px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    outline: none;
+    transition: border-color 0.2s;
+    -webkit-appearance: none;
+  }
+  .form-input:focus, .form-select:focus, .form-textarea:focus {
+    border-color: var(--gold);
+  }
+  .form-select option { background: #ffffff; color: #1e1c18; }
+  .form-textarea { resize: none; height: 80px; line-height: 1.5; }
+  .modal-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 22px;
+  }
+  .btn-primary {
+    flex: 1;
+    background: var(--gold);
+    color: #ffffff;
+    border: none;
+    border-radius: 99px;
+    padding: 13px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+  }
+  .btn-primary:active { transform: scale(0.98); }
+  .btn-secondary {
+    flex: 1;
+    background: transparent;
+    color: var(--text-soft);
+    border: 1px solid var(--border);
+    border-radius: 99px;
+    padding: 13px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    cursor: pointer;
+  }
+
+  /* Done modal */
+  .done-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 200;
+    display: flex;
+    align-items: flex-end;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s;
+  }
+  .done-modal-overlay.open {
+    opacity: 1;
+    pointer-events: all;
+  }
+  .done-modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius) var(--radius) 0 0;
+    padding: 24px 20px 40px;
+    width: 100%;
+    transform: translateY(100%);
+    transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+  }
+  .done-modal-overlay.open .done-modal {
+    transform: translateY(0);
+  }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 90px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 99px;
+    padding: 10px 20px;
+    font-size: 13px;
+    color: var(--text);
+    opacity: 0;
+    transition: all 0.3s;
+    z-index: 300;
+    white-space: nowrap;
+    pointer-events: none;
+  }
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* Confetti layer */
+  #confetti-canvas {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 500;
+  }
+</style>
+</head>
+<body>
+
+<canvas id="confetti-canvas"></canvas>
+
+<header>
+  <h1>Someday List</h1>
+  <p>Everything you'll do someday</p>
+</header>
+
+<!-- Overall progress -->
+<div class="overall-card">
+  <div class="overall-top">
+    <span class="overall-label">전체 달성률</span>
+    <div>
+      <div class="overall-pct" id="overall-pct">0%</div>
+      <div class="overall-counts" id="overall-counts">0 / 0 completed</div>
+    </div>
+  </div>
+  <div class="bar-track"><div class="bar-fill" id="overall-bar" style="width:0%"></div></div>
+</div>
+
+<!-- Category progress grid -->
+<div class="cat-progress-section" id="cat-progress-section">
+  <div class="cat-progress-section-title">카테고리별 진행률</div>
+  <div class="cat-progress-grid" id="cat-progress-grid"></div>
+</div>
+
+<!-- Category pills filter -->
+<div class="cat-scroll-wrap" id="cat-scroll-wrap"></div>
+
+<!-- Item list -->
+<div class="list-section">
+  <div class="list-header">
+    <div class="list-title" id="list-title">전체 목표</div>
+    <button class="btn-add" onclick="openAddModal()">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v12M1 7h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      추가
+    </button>
+  </div>
+  <div class="filter-tabs">
+    <button class="filter-tab active" data-filter="all" onclick="setFilter('all',this)">전체</button>
+    <button class="filter-tab" data-filter="todo" onclick="setFilter('todo',this)">예정</button>
+    <button class="filter-tab" data-filter="done" onclick="setFilter('done',this)">완료</button>
+  </div>
+  <div id="item-list"></div>
+</div>
+
+<!-- Add/Edit Modal -->
+<div class="modal-overlay" id="item-modal" onclick="handleModalOverlayClick(event)">
+  <div class="modal" id="item-modal-box">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="modal-title">새 목표</div>
+    <div class="form-group">
+      <label class="form-label">목표 제목 *</label>
+      <input class="form-input" id="f-title" type="text" placeholder="예) 오로라 보러 아이슬란드 가기">
+    </div>
+    <div class="form-group">
+      <label class="form-label">카테고리</label>
+      <select class="form-select" id="f-cat">
+        <option value="Travel">✈️ Travel</option>
+        <option value="Adventure">🧗 Adventure</option>
+        <option value="Culture">🎭 Culture</option>
+        <option value="Food">🍜 Food</option>
+        <option value="Learning">📚 Learning</option>
+        <option value="Career">💼 Career</option>
+        <option value="Health">🏃 Health</option>
+        <option value="Relationship">❤️ Relationship</option>
+        <option value="Creative">🎨 Creative</option>
+        <option value="Other">⭐ Other</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal('item-modal')">취소</button>
+      <button class="btn-primary" onclick="saveItem()">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- Complete (mark done) Modal -->
+<div class="done-modal-overlay" id="done-modal" onclick="handleDoneOverlayClick(event)">
+  <div class="done-modal" id="done-modal-box">
+    <div class="modal-handle"></div>
+    <div class="modal-title">🎉 완료 기록하기!</div>
+    <div class="form-group">
+      <label class="form-label">완료 날짜</label>
+      <input class="form-input" id="d-date" type="date">
+    </div>
+    <div class="form-group">
+      <label class="form-label">메모 / 기억</label>
+      <textarea class="form-textarea" id="d-memo" placeholder="어떤 느낌이었나요? 기억하고 싶은 순간을 남겨보세요…"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal('done-modal')">취소</button>
+      <button class="btn-primary" onclick="confirmDone()">완료! 🎊</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ═══════════════════════════════════════════
+   DATA
+═══════════════════════════════════════════ */
+const CAT_COLORS = {
+  Travel:       { bg:'rgba(99,179,237,0.15)',  text:'#63b3ed', bar:'#63b3ed' },
+  Adventure:    { bg:'rgba(252,129,74,0.15)',   text:'#fc814a', bar:'#fc814a' },
+  Culture:      { bg:'rgba(183,148,246,0.15)',  text:'#b794f6', bar:'#b794f6' },
+  Food:         { bg:'rgba(246,173,85,0.15)',   text:'#f6ad55', bar:'#f6ad55' },
+  Learning:     { bg:'rgba(72,187,120,0.15)',   text:'#48bb78', bar:'#48bb78' },
+  Career:       { bg:'rgba(201,168,76,0.15)',   text:'#c9a84c', bar:'#c9a84c' },
+  Health:       { bg:'rgba(109,191,138,0.15)',  text:'#6dbf8a', bar:'#6dbf8a' },
+  Relationship: { bg:'rgba(236,64,122,0.15)',   text:'#ec407a', bar:'#ec407a' },
+  Creative:     { bg:'rgba(237,137,54,0.15)',   text:'#ed8936', bar:'#ed8936' },
+  Other:        { bg:'rgba(160,160,160,0.15)',  text:'#a0a0a0', bar:'#a0a0a0' },
+};
+const CAT_ICONS = {
+  Travel:'✈️', Adventure:'🧗', Culture:'🎭', Food:'🍜',
+  Learning:'📚', Career:'💼', Health:'🏃', Relationship:'❤️',
+  Creative:'🎨', Other:'⭐'
+};
+
+let items = JSON.parse(localStorage.getItem('milestone_items') || '[]');
+let editingId = null;
+let pendingDoneId = null;
+let activeCat = 'all';
+let activeFilter = 'all';
+
+function save() {
+  localStorage.setItem('milestone_items', JSON.stringify(items));
+}
+function genId() {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2,6);
+}
+
+/* ═══════════════════════════════════════════
+   RENDER
+═══════════════════════════════════════════ */
+function render() {
+  renderOverall();
+  renderCatProgress();
+  renderCatPills();
+  renderList();
+}
+
+function renderOverall() {
+  const total = items.length;
+  const done = items.filter(i => i.done).length;
+  const pct = total === 0 ? 0 : Math.round((done / total) * 100);
+  document.getElementById('overall-pct').textContent = pct + '%';
+  document.getElementById('overall-counts').textContent = done + ' / ' + total + ' 완료';
+  document.getElementById('overall-bar').style.width = pct + '%';
+}
+
+function renderCatProgress() {
+  const cats = [...new Set(items.map(i => i.cat))].sort();
+  const grid = document.getElementById('cat-progress-grid');
+  const section = document.getElementById('cat-progress-section');
+  if (cats.length === 0) { section.style.display = 'none'; return; }
+  section.style.display = '';
+  grid.innerHTML = cats.map(cat => {
+    const catItems = items.filter(i => i.cat === cat);
+    const done = catItems.filter(i => i.done).length;
+    const pct = catItems.length === 0 ? 0 : Math.round((done / catItems.length) * 100);
+    const col = CAT_COLORS[cat] || CAT_COLORS.Other;
+    const isActive = activeCat === cat;
+    return `<div class="cat-prog-card${isActive?' active':''}" onclick="setCat('${cat}')">
+      <div class="cat-prog-name"><span class="cat-icon">${CAT_ICONS[cat]||'⭐'}</span>${cat}</div>
+      <div class="cat-prog-pct" style="color:${col.text}">${pct}%</div>
+      <div class="cat-prog-bar"><div class="cat-prog-bar-fill" style="width:${pct}%;background:${col.bar}"></div></div>
+    </div>`;
+  }).join('');
+}
+
+function renderCatPills() {
+  const cats = [...new Set(items.map(i => i.cat))].sort();
+  const wrap = document.getElementById('cat-scroll-wrap');
+  const allCount = items.length;
+  const pills = [
+    `<div class="cat-pill${activeCat==='all'?' active':''}" onclick="setCat('all')">전체 <span class="pill-count">${allCount}</span></div>`
+  ].concat(cats.map(cat => {
+    const cnt = items.filter(i => i.cat === cat).length;
+    return `<div class="cat-pill${activeCat===cat?' active':''}" onclick="setCat('${cat}')">${CAT_ICONS[cat]||''} ${cat} <span class="pill-count">${cnt}</span></div>`;
+  }));
+  wrap.innerHTML = pills.join('');
+}
+
+function renderList() {
+  let filtered = activeCat === 'all' ? [...items] : items.filter(i => i.cat === activeCat);
+  if (activeFilter === 'todo') filtered = filtered.filter(i => !i.done);
+  if (activeFilter === 'done') filtered = filtered.filter(i => i.done);
+
+  const titleEl = document.getElementById('list-title');
+  titleEl.textContent = activeCat === 'all' ? '전체 목표' : (CAT_ICONS[activeCat] || '') + ' ' + activeCat;
+
+  const listEl = document.getElementById('item-list');
+  if (filtered.length === 0) {
+    listEl.innerHTML = `<div class="empty-state"><div class="empty-icon">${activeCat==='all'?'🌟':CAT_ICONS[activeCat]||'⭐'}</div><p>${activeFilter==='done'?'아직 완료한 목표가 없어요.':activeFilter==='todo'?'예정된 목표가 없어요!':'위에서 첫 번째 목표를 추가해보세요.'}</p></div>`;
+    return;
+  }
+
+  listEl.innerHTML = filtered.map(item => {
+    const col = CAT_COLORS[item.cat] || CAT_COLORS.Other;
+    return `
+    <div class="item-card${item.done?' done':''}" id="card-${item.id}">
+      <div class="item-top">
+        <div class="item-check" onclick="toggleDone('${item.id}')">
+          ${item.done ? `<svg viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>` : ''}
+        </div>
+        <div class="item-body">
+          <div class="item-title">${escHtml(item.title)}</div>
+          <div class="item-meta">
+            <span class="item-cat-badge" style="background:${col.bg};color:${col.text}">${CAT_ICONS[item.cat]||''} ${escHtml(item.cat)}</span>
+            ${item.done && item.doneDate ? `<span class="item-date">📅 ${formatDate(item.doneDate)}</span>` : ''}
+          </div>
+          ${item.done && item.memo ? `<div class="item-note">${escHtml(item.memo)}</div>` : ''}
+        </div>
+        <div class="item-actions">
+          <button class="icon-btn" onclick="openEditModal('${item.id}')" title="Edit">
+            <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M9 2l2 2-7 7H2V9l7-7z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
+          </button>
+          <button class="icon-btn delete" onclick="deleteItem('${item.id}')" title="Delete">
+            <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 2l9 9M11 2L2 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* ═══════════════════════════════════════════
+   ACTIONS
+═══════════════════════════════════════════ */
+function setCat(cat) {
+  activeCat = cat;
+  render();
+}
+function setFilter(f, el) {
+  activeFilter = f;
+  document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  renderList();
+}
+
+function openAddModal() {
+  editingId = null;
+  document.getElementById('modal-title').textContent = '새 목표';
+  document.getElementById('f-title').value = '';
+  document.getElementById('f-cat').value = 'Travel';
+  openModal('item-modal');
+  setTimeout(() => document.getElementById('f-title').focus(), 350);
+}
+function openEditModal(id) {
+  const item = items.find(i => i.id === id);
+  if (!item) return;
+  editingId = id;
+  document.getElementById('modal-title').textContent = '목표 수정';
+  document.getElementById('f-title').value = item.title;
+  document.getElementById('f-cat').value = item.cat;
+  openModal('item-modal');
+  setTimeout(() => document.getElementById('f-title').focus(), 350);
+}
+function saveItem() {
+  const title = document.getElementById('f-title').value.trim();
+  if (!title) { showToast('목표 제목을 입력해주세요.'); return; }
+  const cat = document.getElementById('f-cat').value;
+  if (editingId) {
+    const item = items.find(i => i.id === editingId);
+    if (item) { item.title = title; item.cat = cat; }
+  } else {
+    items.unshift({ id: genId(), title, cat, done: false, doneDate: null, memo: '' });
+  }
+  save(); render(); closeModal('item-modal');
+  showToast(editingId ? '목표가 수정됐어요!' : '목표가 추가됐어요! 🌟');
+}
+
+function toggleDone(id) {
+  const item = items.find(i => i.id === id);
+  if (!item) return;
+  if (item.done) {
+    item.done = false; item.doneDate = null; item.memo = '';
+    save(); render(); showToast('예정으로 되돌렸어요.');
+  } else {
+    pendingDoneId = id;
+    document.getElementById('d-date').value = new Date().toISOString().slice(0,10);
+    document.getElementById('d-memo').value = '';
+    openModal('done-modal');
+  }
+}
+
+function confirmDone() {
+  const item = items.find(i => i.id === pendingDoneId);
+  if (!item) return;
+  item.done = true;
+  item.doneDate = document.getElementById('d-date').value || new Date().toISOString().slice(0,10);
+  item.memo = document.getElementById('d-memo').value.trim();
+  save(); render(); closeModal('done-modal');
+  showToast('완료했어요! 정말 대단해요! 🎊');
+  launchConfetti();
+}
+
+function deleteItem(id) {
+  if (!confirm('이 목표를 삭제할까요?')) return;
+  items = items.filter(i => i.id !== id);
+  save(); render(); showToast('목표가 삭제됐어요.');
+}
+
+/* ═══════════════════════════════════════════
+   MODAL HELPERS
+═══════════════════════════════════════════ */
+function openModal(id) {
+  document.getElementById(id).classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+  document.body.style.overflow = '';
+}
+function handleModalOverlayClick(e) {
+  if (e.target === document.getElementById('item-modal')) closeModal('item-modal');
+}
+function handleDoneOverlayClick(e) {
+  if (e.target === document.getElementById('done-modal')) closeModal('done-modal');
+}
+
+/* ═══════════════════════════════════════════
+   TOAST
+═══════════════════════════════════════════ */
+let toastTimer = null;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+/* ═══════════════════════════════════════════
+   CONFETTI
+═══════════════════════════════════════════ */
+function launchConfetti() {
+  const canvas = document.getElementById('confetti-canvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  const pieces = Array.from({length: 80}, () => ({
+    x: Math.random() * canvas.width,
+    y: -10 - Math.random() * 100,
+    r: 4 + Math.random() * 6,
+    d: 2 + Math.random() * 3,
+    color: ['#c9a84c','#e8c97a','#6dbf8a','#63b3ed','#fc814a','#b794f6'][Math.floor(Math.random()*6)],
+    tilt: Math.random() * 360,
+    tiltSpd: (Math.random() - 0.5) * 8,
+  }));
+  let frame = 0;
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    pieces.forEach(p => {
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate((p.tilt * Math.PI) / 180);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.r/2, -p.r/2, p.r, p.r * 0.5);
+      ctx.restore();
+      p.y += p.d;
+      p.x += Math.sin(frame * 0.05) * 1.2;
+      p.tilt += p.tiltSpd;
+    });
+    frame++;
+    if (frame < 120) requestAnimationFrame(draw);
+    else ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+  draw();
+}
+
+/* ═══════════════════════════════════════════
+   UTILS
+═══════════════════════════════════════════ */
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function formatDate(d) {
+  if (!d) return '';
+  const dt = new Date(d + 'T00:00:00');
+  return dt.toLocaleDateString('ko-KR', { year:'numeric', month:'long', day:'numeric' });
+}
+
+/* ═══════════════════════════════════════════
+   SAMPLE DATA (first launch)
+═══════════════════════════════════════════ */
+function seedData() {
+  if (items.length > 0) return;
+  items = [
+    { id:genId(), title:'See the Northern Lights in Iceland', cat:'Travel', done:true, doneDate:'2024-02-14', memo:'Absolutely breathtaking — danced green across the whole sky. Worth every cold second.' },
+    { id:genId(), title:'Learn to make pasta from scratch', cat:'Food', done:true, doneDate:'2024-06-01', memo:'Made tagliatelle with grandma\'s rolling pin. Messy but delicious.' },
+    { id:genId(), title:'Hike the Camino de Santiago', cat:'Adventure', done:false, doneDate:null, memo:'' },
+    { id:genId(), title:'Visit all 7 continents', cat:'Travel', done:false, doneDate:null, memo:'' },
+    { id:genId(), title:'Read 50 books in a year', cat:'Learning', done:false, doneDate:null, memo:'' },
+    { id:genId(), title:'Run a half marathon', cat:'Health', done:false, doneDate:null, memo:'' },
+    { id:genId(), title:'Learn basic Spanish', cat:'Learning', done:false, doneDate:null, memo:'' },
+  ];
+  save();
+}
+
+/* ═══════════════════════════════════════════
+   KEYBOARD (desktop)
+═══════════════════════════════════════════ */
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    closeModal('item-modal');
+    closeModal('done-modal');
+  }
+  if (e.key === 'Enter' && document.getElementById('item-modal').classList.contains('open')) {
+    const focused = document.activeElement;
+    if (focused && focused.tagName !== 'TEXTAREA' && focused.tagName !== 'SELECT') saveItem();
+  }
+});
+
+// Init
+seedData();
+render();
+</script>
+</body>
+</html>
